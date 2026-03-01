@@ -9,6 +9,9 @@ export default function HaxballBoard({ state, onAction, userId, ownerId }: { sta
     // Handle inputs
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
             const k = keys.current;
             let changed = false;
             switch (e.code) {

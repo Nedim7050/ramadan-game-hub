@@ -18,16 +18,6 @@ export default function Connect4Board({ state, onAction, userId }: { state: any,
         return state.winningCells?.some((cell: any) => cell.r === r && cell.c === c);
     };
 
-    if (state.status === 'finished') {
-        const winnerName = state.winner ? state.players.find((p: any) => p.id === state.winner)?.username : null;
-        return (
-            <div className="flex flex-col items-center justify-center p-20 bg-gray-900 rounded-xl">
-                <h2 className="text-4xl text-yellow-400 font-bold mb-4">{winnerName ? 'Victoire !' : 'Égalité !'}</h2>
-                <p className="text-xl text-white">{winnerName ? `Vainqueur: ${winnerName}` : 'Aucun vainqueur'}</p>
-            </div>
-        );
-    }
-
     return (
         <div className="w-full h-full min-h-[500px] flex flex-col bg-[#0f172a] rounded-xl border border-gray-800 p-4 md:p-8 relative shadow-2xl items-center">
 

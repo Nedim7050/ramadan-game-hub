@@ -145,6 +145,13 @@ export class Ludo implements Game<LudoState, any> {
             state.positions[pid][pieceIndex] = newPosition;
             state.log.unshift(`${currentPlayer.username} moved token forward.`);
 
+            // Check if piece reached Home Goal
+            let grantedExtraTurnForHome = false;
+            if (newPosition === HOME_POSITIONS[pid] && currentPosition !== HOME_POSITIONS[pid]) {
+                state.log.unshift(`🎯 ${currentPlayer.username} secured a token in Home! Extra turn granted.`);
+                grantedExtraTurnForHome = true;
+            }
+
             // Check if player won
             if (state.positions[pid].every(pos => pos === HOME_POSITIONS[pid])) {
                 state.status = 'finished';
@@ -162,9 +169,11 @@ export class Ludo implements Game<LudoState, any> {
                 return { newState: state };
             }
 
-            // Advance Turn or Extra Turn on 6
-            if (state.diceValue === 6) {
-                state.log.unshift(`${currentPlayer.username} rolled a 6, extra turn!`);
+            // Advance Turn or Extra Turn on 6 / Home
+            if (grantedExtraTurnForHome || state.diceValue === 6) {
+                if (state.diceValue === 6 && !grantedExtraTurnForHome) {
+                    state.log.unshift(`${currentPlayer.username} rolled a 6, extra turn!`);
+                }
                 state.diceRolled = false;
                 state.diceValue = null;
             } else {

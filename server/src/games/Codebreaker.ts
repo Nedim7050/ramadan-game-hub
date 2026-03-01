@@ -42,17 +42,28 @@ export class Codebreaker implements Game<CodebreakerState, any> {
                 throw new Error("Guess must be exactly 4 digits");
             }
 
-            // Calculate Bulls and Cows
             let bulls = 0;
             let cows = 0;
-            const secretArr = state.secretCode.split('');
-            const guessArr = guess.split('');
+            const secretArr: (string | null)[] = state.secretCode.split('');
+            const guessArr: (string | null)[] = guess.split('');
 
+            // First pass for Bulls (Correct digit & position)
             for (let i = 0; i < 4; i++) {
                 if (guessArr[i] === secretArr[i]) {
                     bulls++;
-                } else if (secretArr.includes(guessArr[i])) {
-                    cows++;
+                    secretArr[i] = null;
+                    guessArr[i] = null;
+                }
+            }
+
+            // Second pass for Cows (Correct digit, wrong position)
+            for (let i = 0; i < 4; i++) {
+                if (guessArr[i] !== null) {
+                    const matchIndex = secretArr.indexOf(guessArr[i]);
+                    if (matchIndex !== -1) {
+                        cows++;
+                        secretArr[matchIndex] = null;
+                    }
                 }
             }
 

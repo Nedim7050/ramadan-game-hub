@@ -20,6 +20,7 @@ const io = new Server(httpServer, {
         methods: ['GET', 'POST'],
     },
 });
+app.get('/api/ping', (req, res) => res.send('pong'));
 
 app.post('/api/admin/updateScore', async (req, res) => {
     const { userId, newScore, currentScore, adminId } = req.body;

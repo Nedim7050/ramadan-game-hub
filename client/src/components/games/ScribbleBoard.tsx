@@ -9,6 +9,7 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
     const [color, setColor] = useState('#ffffff');
     const [brushSize, setBrushSize] = useState(3);
     const lastPos = useRef<{ x: number, y: number } | null>(null);
+    const drawnLinesCount = useRef(0);
 
     const isDrawer = state.players[state.currentDrawerIndex]?.id === userId;
 
@@ -18,11 +19,16 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Draw all lines from state
-        ctx.fillStyle = '#1e293b'; // Slate 800
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // If the server cleared the lines, clear the canvas
+        if (!state.lines || state.lines.length === 0 || state.lines.length < drawnLinesCount.current) {
+            ctx.fillStyle = '#1e293b'; // Slate 800
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawnLinesCount.current = 0;
+        }
 
-        state.lines.forEach((line: any) => {
+        // Draw only new lines
+        const linesToDraw = state.lines.slice(drawnLinesCount.current);
+        linesToDraw.forEach((line: any) => {
             ctx.beginPath();
             ctx.moveTo(line.x0, line.y0);
             ctx.lineTo(line.x1, line.y1);
@@ -31,6 +37,8 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
             ctx.lineCap = 'round';
             ctx.stroke();
         });
+
+        drawnLinesCount.current = state.lines.length;
     }, [state.lines]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -47,6 +55,19 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
             const newPos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+
+            // Draw locally immediately for zero perceived latency
+            const ctx = canvasRef.current?.getContext('2d');
+            if (ctx) {
+                ctx.beginPath();
+                ctx.moveTo(lastPos.current.x, lastPos.current.y);
+                ctx.lineTo(newPos.x, newPos.y);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+
             onAction({ type: 'draw', line: { x0: lastPos.current.x, y0: lastPos.current.y, x1: newPos.x, y1: newPos.y, color, width: brushSize } });
             lastPos.current = newPos;
         }

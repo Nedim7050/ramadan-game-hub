@@ -106,7 +106,7 @@ export default function LudoBoard({ state, onAction, userId }: { state: any, onA
                             safetyBreak++;
 
                             // Handle entering the Home Runway
-                            const homeEntranceTrigger = ({ P1: 50, P2: 11, P3: 24, P4: 37 } as Record<string, number>)[pid];
+                            const homeEntranceTrigger = ({ P1: 50, P2: 24, P3: 37, P4: 11 } as Record<string, number>)[pid];
                             const homeStartNode = ({ P1: 100, P2: 200, P3: 300, P4: 400 } as Record<string, number>)[pid];
 
                             if (current === homeEntranceTrigger && endNode >= homeStartNode) {
