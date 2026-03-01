@@ -23,7 +23,9 @@ export default function Lobby() {
         const code = 'RAM-' + Math.random().toString(36).substring(2, 6).toUpperCase();
         const { error } = await supabase.from('rooms').insert([{ code, owner_id: user.id }]);
         if (error) return alert("Error: " + error.message);
-        router.push(`/room/${code}?game=${gameId}`);
+
+        // Force a hard navigation to bypass Next.js Vercel soft-router stripping the query params
+        window.location.href = `/room/${code}?game=${gameId}`;
     };
 
     const joinRoom = (e: React.FormEvent) => {
