@@ -6,6 +6,7 @@ export const setupSocket = (io: Server) => {
         console.log(`🔌 Client connected: ${socket.id}`);
 
         socket.on('room:join', ({ roomCode, user, gameId }) => {
+            console.log(`[DEBUG] room:join -> code: ${roomCode}, gameId: ${gameId}, user: ${user?.username}`);
             socket.join(roomCode);
 
             // Validate user object
