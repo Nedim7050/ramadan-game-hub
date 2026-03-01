@@ -21,7 +21,10 @@ export default function GameRoom({ params }: { params: { code: string, sessionId
     const { user, isAuthLoaded } = useStore();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const gameType = searchParams.get('type');
+    let gameType = searchParams.get('type');
+    if (typeof window !== 'undefined') {
+        gameType = new URLSearchParams(window.location.search).get('type') || gameType;
+    }
 
     const [gameState, setGameState] = useState<any>(null);
     const [gameResult, setGameResult] = useState<any>(null);

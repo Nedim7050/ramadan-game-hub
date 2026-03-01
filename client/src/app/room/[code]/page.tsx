@@ -39,8 +39,11 @@ export default function Room({ params }: { params: { code: string } }) {
 
         if (!socket.connected) socket.connect();
 
+        // Immediately pull directly from window to bypass Next.js Vercel static hydration stripping race conditions
+        const actualGameIntent = new URLSearchParams(window.location.search).get('game') || gameQueryParam;
+
         // Rejoin the room if the component remounts, passing the URL intent
-        socket.emit('room:join', { roomCode: code, user, gameId: gameQueryParam });
+        socket.emit('room:join', { roomCode: code, user, gameId: actualGameIntent });
 
         const handleChat = (msg: any) => setMessages(prev => [...prev, msg]);
         const handleGameStart = ({ sessionId, gameType }: any) => {
