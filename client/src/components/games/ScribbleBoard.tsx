@@ -41,21 +41,34 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
         drawnLinesCount.current = state.lines.length;
     }, [state.lines]);
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (!isDrawer || state.status !== 'drawing') return;
-        setIsDrawingUI(true);
+    const getCoordinates = (e: any) => {
         const rect = canvasRef.current?.getBoundingClientRect();
-        if (rect) {
-            lastPos.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        }
+        if (!rect || !canvasRef.current) return null;
+
+        const clientX = e.touches ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+        const clientY = e.touches ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+
+        const scaleX = canvasRef.current.width / rect.width;
+        const scaleY = canvasRef.current.height / rect.height;
+
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+        };
     };
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDrawingUI || !isDrawer || !lastPos.current) return;
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (rect) {
-            const newPos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const handleDown = (e: any) => {
+        if (!isDrawer || state.status !== 'drawing') return;
+        setIsDrawingUI(true);
+        const pos = getCoordinates(e);
+        if (pos) lastPos.current = pos;
+    };
 
+    const handleMove = (e: any) => {
+        if (!isDrawingUI || !isDrawer || !lastPos.current) return;
+        // e.preventDefault() can be useful to stop scrolling on mobile, but touch-none in CSS handles it
+        const newPos = getCoordinates(e);
+        if (newPos) {
             // Draw locally immediately for zero perceived latency
             const ctx = canvasRef.current?.getContext('2d');
             if (ctx) {
@@ -73,7 +86,7 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
         }
     };
 
-    const handleMouseUp = () => {
+    const handleUp = () => {
         setIsDrawingUI(false);
         lastPos.current = null;
     };
@@ -88,7 +101,7 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
     const hiddenWord = state.hint || '???';
 
     return (
-        <div className="w-full h-[550px] flex gap-4">
+        <div className="w-full h-[750px] flex gap-4">
 
             {/* Left Main Field: Canvas & Tools */}
             <div className="flex-1 flex flex-col relative">
@@ -166,12 +179,15 @@ export default function ScribbleBoard({ state, onAction, userId }: { state: any,
                         <canvas
                             ref={canvasRef}
                             width={800}
-                            height={400}
-                            onMouseDown={handleMouseDown}
-                            onMouseMove={handleMouseMove}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                            className="w-full h-full object-contain pointer-events-auto"
+                            height={600}
+                            onMouseDown={handleDown}
+                            onMouseMove={handleMove}
+                            onMouseUp={handleUp}
+                            onMouseLeave={handleUp}
+                            onTouchStart={handleDown}
+                            onTouchMove={handleMove}
+                            onTouchEnd={handleUp}
+                            className="w-full h-full touch-none pointer-events-auto"
                         />
                     </div>
 
