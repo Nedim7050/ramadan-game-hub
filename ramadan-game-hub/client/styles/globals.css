@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles globaux supplémentaires pour l'application. */
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+}
